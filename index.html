@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendario Selectividad 2026 — 2º Bach. Andalucía</title>
+
+<!-- ================================================================
+     ESTILOS — Modifica aquí colores, fuentes, tamaños, etc.
+     ================================================================ -->
+<style>
+/* === VARIABLES PRINCIPALES === */
+:root {
+  --bg:        #0d0d12;
+  --surface:   #16161f;
+  --surface2:  #1e1e2a;
+  --border:    rgba(255,255,255,0.08);
+  --text:      #f0eeff;
+  --muted:     #6b6a80;
+
+  /* Colores por asignatura: cambia el valor hex para modificar el color */
+  --c-lengua:      #f472b6;
+  --c-mates:       #60a5fa;
+  --c-fisica:      #34d399;
+  --c-dibujo:      #fbbf24;
+  --c-historia:    #f97316;
+  --c-ingles:      #a78bfa;
+  --c-filosofia:   #94a3b8;
+  --c-gym:         #818cf8;
+  --c-libre:       #475569;
+  --c-clase:       #334155;
+  --c-selectividad:#10b981;
+  --c-descanso:    #eab308;
+
+  --radius: 10px;
+  --radius-lg: 16px;
+}
+
+/* === RESET Y BASE === */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 2rem 1.5rem 4rem;
+  line-height: 1.5;
+}
+
+/* === CABECERA === */
+.header { text-align: center; margin-bottom: 2.5rem; }
+.header h1 {
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.header p { color: var(--muted); font-size: 0.95rem; margin-top: 0.3rem; }
+.countdown {
+  display: inline-block;
+  margin-top: 0.8rem;
+  padding: 0.4rem 1.2rem;
+  border-radius: 999px;
+  background: var(--surface2);
+  border: 1px solid rgba(167,139,250,0.3);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #a78bfa;
+}
+
+/* === LEYENDA === */
+.legend {
+  display: flex; flex-wrap: wrap; gap: 0.5rem;
+  justify-content: center; margin-bottom: 2rem;
+}
+.legend-item {
+  display: flex; align-items: center; gap: 6px;
+  padding: 0.3rem 0.9rem;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 0.78rem; font-weight: 500;
+}
+.legend-dot { width: 9px; height: 9px; border-radius: 50%; }
+
+/* === FASES === */
+.phases { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 2rem; }
+.phase-card {
+  flex: 1; min-width: 180px;
+  padding: 1rem 1.1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.phase-card .ptitle {
+  font-size: 0.75rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px;
+  margin-bottom: 0.35rem;
+}
+.phase-card p { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+.p1 .ptitle { color: #60a5fa; }
+.p2 .ptitle { color: #f472b6; }
+.p3 .ptitle { color: #eab308; }
+.p4 .ptitle { color: #10b981; }
+
+/* === TÍTULO DE MES === */
+.month-title {
+  font-size: 1.4rem; font-weight: 700;
+  margin-bottom: 1rem; margin-top: 0.5rem;
+}
+
+/* === GRID CALENDARIO === */
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  margin-bottom: 2.5rem;
+}
+.day-name {
+  text-align: center;
+  font-size: 0.68rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 1px;
+  color: var(--muted); padding: 0.35rem 0;
+}
+.day-cell {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.45rem 0.5rem;
+  min-height: 90px;
+  cursor: pointer;
+  transition: border-color 0.18s, transform 0.15s;
+  overflow: hidden;
+  position: relative;
+}
+.day-cell:hover { border-color: rgba(167,139,250,0.5); transform: translateY(-2px); }
+.day-cell.empty { background: transparent; border-color: transparent; cursor: default; pointer-events: none; }
+.day-cell.weekend { background: rgba(255,255,255,0.015); }
+.day-cell.descanso { border: 1px solid rgba(234,179,8,0.4); background: rgba(234,179,8,0.04); }
+.day-cell.selectividad-day { border: 1px solid rgba(16,185,129,0.4); background: rgba(16,185,129,0.04); }
+.day-cell.puente { background: rgba(99,102,241,0.06); border-color: rgba(99,102,241,0.2); }
+
+.day-num {
+  font-size: 1rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 0.35rem;
+}
+.day-badge {
+  font-size: 0.56rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.4px;
+  padding: 2px 5px; border-radius: 4px;
+}
+.badge-clase    { background: rgba(96,165,250,0.15);  color: #60a5fa; }
+.badge-intensivo{ background: rgba(244,114,182,0.15); color: #f472b6; }
+.badge-libre    { background: rgba(71,85,105,0.25);   color: #94a3b8; }
+.badge-descanso { background: rgba(234,179,8,0.15);   color: #eab308; }
+.badge-pau      { background: rgba(16,185,129,0.15);  color: #10b981; }
+.badge-puente   { background: rgba(99,102,241,0.2);   color: #818cf8; }
+
+.day-blocks { display: flex; flex-direction: column; gap: 2px; }
+.mini-block {
+  font-size: 0.62rem; font-weight: 500;
+  padding: 2px 5px; border-radius: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* === MODAL === */
+.overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 200;
+  align-items: center; justify-content: center;
+  padding: 1rem;
+}
+.overlay.open { display: flex; }
+.modal {
+  background: var(--surface2);
+  border: 1px solid rgba(167,139,250,0.25);
+  border-radius: var(--radius-lg);
+  padding: 1.8rem;
+  width: 100%; max-width: 500px;
+  max-height: 92vh; overflow-y: auto;
+  position: relative;
+}
+.modal-close {
+  position: absolute; top: 1rem; right: 1rem;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--muted); border-radius: 50%;
+  width: 30px; height: 30px; cursor: pointer;
+  font-size: 0.9rem; display: flex; align-items: center; justify-content: center;
+}
+.modal-close:hover { color: var(--text); }
+.modal h2 { font-size: 1.35rem; font-weight: 700; margin-bottom: 0.2rem; }
+.modal .msub { font-size: 0.83rem; color: var(--muted); margin-bottom: 1.4rem; }
+.exam-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px; border-radius: 999px;
+  font-size: 0.72rem; font-weight: 600;
+  margin-bottom: 0.8rem; margin-right: 4px;
+}
+.exam-pill.proposed { border: 1px dashed; opacity: 0.8; }
+
+/* Bloques horarios en modal */
+.tblock {
+  display: flex; gap: 0.9rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--border);
+  align-items: flex-start;
+}
+.tblock:last-child { border-bottom: none; }
+.ttime {
+  font-size: 0.72rem; color: var(--muted);
+  min-width: 90px; font-weight: 500; padding-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+.tcontent { flex: 1; }
+.ttitle { font-size: 0.88rem; font-weight: 600; margin-bottom: 0.15rem; }
+.tdetail { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+.stag {
+  display: inline-block;
+  font-size: 0.63rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  padding: 1px 6px; border-radius: 3px;
+  margin-bottom: 3px;
+}
+
+/* Color pills por asignatura */
+.col-lengua   { background:rgba(244,114,182,0.18); color:var(--c-lengua); }
+.col-mates    { background:rgba(96,165,250,0.18);  color:var(--c-mates); }
+.col-fisica   { background:rgba(52,211,153,0.18);  color:var(--c-fisica); }
+.col-dibujo   { background:rgba(251,191,36,0.18);  color:var(--c-dibujo); }
+.col-historia { background:rgba(249,115,22,0.18);  color:var(--c-historia); }
+.col-ingles   { background:rgba(167,139,250,0.18); color:var(--c-ingles); }
+.col-filosofia{ background:rgba(148,163,184,0.18); color:var(--c-filosofia); }
+.col-gym      { background:rgba(129,140,248,0.15); color:var(--c-gym); }
+.col-libre    { background:rgba(71,85,105,0.2);    color:#94a3b8; }
+.col-clase    { background:rgba(51,65,85,0.3);     color:#94a3b8; }
+.col-selectividad{ background:rgba(16,185,129,0.18);color:var(--c-selectividad); }
+
+/* Caja de tip */
+.tip-box {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(167,139,250,0.07);
+  border: 1px solid rgba(167,139,250,0.2);
+  border-radius: var(--radius);
+  font-size: 0.8rem; color: #c4b5fd; line-height: 1.6;
+}
+.tip-box strong { color: #a78bfa; }
+
+/* === FOOTER === */
+footer {
+  text-align: center; color: var(--muted);
+  font-size: 0.78rem; margin-top: 2rem;
+  border-top: 1px solid var(--border); padding-top: 1.5rem;
+}
+
+/* === GUÍA DE MODIFICACIÓN === */
+.guide {
+  background: var(--surface);
+  border: 1px solid rgba(96,165,250,0.2);
+  border-radius: var(--radius-lg);
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 2rem;
+}
+.guide h3 { font-size: 0.9rem; font-weight: 700; color: #60a5fa; margin-bottom: 0.8rem; }
+.guide ul { padding-left: 1.2rem; }
+.guide li { font-size: 0.8rem; color: var(--muted); line-height: 1.8; }
+.guide code {
+  background: rgba(255,255,255,0.07);
+  padding: 1px 5px; border-radius: 4px;
+  font-size: 0.75rem; color: #fbbf24;
+  font-family: 'Menlo', 'Consolas', monospace;
+}
+
+@media (max-width: 600px) {
+  body { padding: 1rem 0.8rem 3rem; }
+  .header h1 { font-size: 1.7rem; }
+  .cal-grid { gap: 3px; }
+  .day-cell { min-height: 65px; padding: 0.3rem; }
+  .day-num { font-size: 0.85rem; }
+  .mini-block { display: none; }
+  .phases { flex-direction: column; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ================================================================
+     CABECERA
+     ================================================================ -->
+<div class="header">
+  <h1>Selectividad 2026 🎯</h1>
+  <p>Plan de estudio personalizado · 2º Bachillerato · Andalucía</p>
+  <div class="countdown" id="countdown">⏳ Calculando...</div>
+</div>
+
+<!-- ================================================================
+     GUÍA DE MODIFICACIÓN (se puede eliminar si no quieres verla)
+     ================================================================ -->
+<div class="guide">
+  <h3>📖 Cómo modificar este calendario</h3>
+  <ul>
+    <li>Busca el bloque <code>const HORARIO = { ... }</code> en el script para editar cada día.</li>
+    <li>Cada entrada tiene: <code>type</code>, <code>gym</code>, <code>note</code>, <code>exams</code> y <code>blocks</code>.</li>
+    <li>Para añadir un examen: añade un objeto en el array <code>exams</code> del día correspondiente.</li>
+    <li>Para cambiar un bloque de estudio: edita el array <code>blocks</code> del día (time, subject, label, detail).</li>
+    <li>Los subjects válidos son: <code>lengua</code>, <code>mates</code>, <code>fisica</code>, <code>dibujo</code>, <code>historia</code>, <code>ingles</code>, <code>filosofia</code>, <code>gym</code>, <code>libre</code>, <code>clase</code>.</li>
+    <li>Para cambiar colores de asignaturas: edita las variables CSS en <code>:root { --c-lengua: ... }</code>.</li>
+    <li>Los exámenes de Filosofía marcados con <code>proposed: true</code> aparecen con borde discontinuo — quíta ese flag cuando se confirme la fecha.</li>
+  </ul>
+</div>
+
+<!-- ================================================================
+     LEYENDA DE ASIGNATURAS
+     ================================================================ -->
+<div class="legend" id="legend"></div>
+
+<!-- ================================================================
+     FASES
+     ================================================================ -->
+<div class="phases">
+  <div class="phase-card p1">
+    <div class="ptitle">Fase 1 · 3–22 Mayo</div>
+    <p>Clases 8:00–14:30. Tardes: exámenes de bachillerato + repaso PAU. Gym lunes–viernes.</p>
+  </div>
+  <div class="phase-card p2">
+    <div class="ptitle">Fase 2 · 23–31 Mayo</div>
+    <p>Sin clases. Intensivo PAU. Simulacros y repasos. Gym lunes–viernes. Fines de semana sin gym.</p>
+  </div>
+  <div class="phase-card p3">
+    <div class="ptitle">1 Junio · Descanso</div>
+    <p>Día libre total. No estudias nada. Descansa, come bien y recarga energías.</p>
+  </div>
+  <div class="phase-card p4">
+    <div class="ptitle">2–4 Junio · Selectividad</div>
+    <p>Día 1: Lengua + Historia + Inglés · Día 2: Mates + Física · Día 3: Dibujo Técnico</p>
+  </div>
+</div>
+
+<!-- ================================================================
+     CALENDARIOS
+     ================================================================ -->
+<div class="month-title">Mayo 2026</div>
+<div class="cal-grid" id="cal-mayo"></div>
+
+<div class="month-title">Junio 2026</div>
+<div class="cal-grid" id="cal-junio"></div>
+
+<!-- ================================================================
+     MODAL DE DETALLE
+     ================================================================ -->
+<div class="overlay" id="overlay">
+  <div class="modal" id="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2 id="m-title"></h2>
+    <div class="msub" id="m-sub"></div>
+    <div id="m-exams"></div>
+    <div id="m-blocks"></div>
+    <div id="m-tip"></div>
+  </div>
+</div>
+
+<!-- ================================================================
+     FOOTER
+     ================================================================ -->
+<footer>
+  Haz clic en cualquier día para ver el horario completo · ¡Tú puedes! 💪
+</footer>
+
+
+<!-- ================================================================
+     SCRIPT — LA LÓGICA ESTÁ SEPARADA EN TRES SECCIONES:
+     1. CONFIGURACIÓN (modifica aquí)
+     2. DATOS DE ASIGNATURAS
+     3. MOTOR DE RENDERIZADO (no tocar)
+     ================================================================ -->
+<script>
+
+/* ================================================================
+   SECCIÓN 1 — ASIGNATURAS
+   Modifica label y color si quieres cambiar nombres o colores.
+   ================================================================ */
+const ASIGNATURAS = {
+  lengua:    { label: 'Lengua',       color: '#f472b6' },
+  mates:     { label: 'Matemáticas',  color: '#60a5fa' },
+  fisica:    { label: 'Física',       color: '#34d399' },
+  dibujo:    { label: 'Dibujo T.',    color: '#fbbf24' },
+  historia:  { label: 'Historia',     color: '#f97316' },
+  ingles:    { label: 'Inglés',       color: '#a78bfa' },
+  filosofia: { label: 'Filosofía',    color: '#94a3b8' },
+  gym:       { label: 'Gimnasio',     color: '#818cf8' },
+  libre:     { label: 'Libre',        color: '#475569' },
+  clase:     { label: 'Clases',       color: '#334155' },
+};
+
+
+/* ================================================================
+   SECCIÓN 2 — HORARIO DÍA A DÍA
+   ----------------------------------------------------------------
+   Estructura de cada entrada:
+   {
+     type:  'clase' | 'puente' | 'intensivo' | 'finde' | 'descanso' | 'selectividad',
+     gym:   true | false,   ← solo L-V (gym no abre sáb/dom)
+     note:  'Texto resumen del día',
+     tip:   'Consejo opcional que aparece al final del modal',
+     exams: [ { subject: 'fisica', label: 'Nombre examen', proposed: false } ],
+     blocks:[
+       { time: '08:00–14:30', subject: 'clase', label: 'Título', detail: 'Descripción' },
+       ...
+     ]
+   }
+   ================================================================ */
+const HORARIO = {
+
+  /* ── PUENTE DE MAYO (3–4 mayo) ─────────────────────────────── */
+  "2026-05-03": {
+    type: "finde", gym: false,
+    note: "Puente de mayo — Repaso Física (Óptica) + DT (Cónico)",
+    tip: "💡 Exámenes el martes. Consolida lo que ya sabes, no intentes aprender materia nueva.",
+    blocks: [
+      { time: "10:00–12:30", subject: "fisica",   label: "Física — Óptica Geométrica",  detail: "Repaso completo: espejos, lentes, leyes de reflexión y refracción. Ejercicios resueltos." },
+      { time: "12:30–13:30", subject: "libre",    label: "Descanso / Comida",            detail: "" },
+      { time: "13:30–15:30", subject: "dibujo",   label: "Dibujo Técnico — Cónico",      detail: "Ejercicios de cónicas: elipse, parábola, hipérbola. Practica los trazados completos." },
+      { time: "15:30–18:00", subject: "libre",    label: "Tarde libre 🎮",               detail: "Descansa. Mañana puedes hacer un último repaso ligero." }
+    ]
+  },
+
+  "2026-05-04": {
+    type: "puente", gym: true,
+    note: "Puente de mayo — Último repaso antes de los exámenes del martes",
+    tip: "💡 Hoy es el último día de repaso antes de los exámenes. Repasa sin agobios y descansa bien esta noche.",
+    blocks: [
+      { time: "10:00–11:30", subject: "fisica",   label: "Repaso Óptica (flash)",         detail: "Solo los ejercicios tipo que más te cuestan. Sin materia nueva." },
+      { time: "11:30–13:00", subject: "dibujo",   label: "Repaso Cónico DT (flash)",      detail: "Un ejercicio completo de cada tipo. Cronometrado." },
+      { time: "13:00–16:00", subject: "libre",    label: "Comida + descanso",             detail: "Come bien y descansa. Llegas al examen cargado." },
+      { time: "16:00–17:30", subject: "lengua",   label: "Lengua — Repaso teoría PAU",    detail: "Repaso ligero de selectividad. Sin presión." },
+      { time: "20:00–21:30", subject: "gym",      label: "Gimnasio",                      detail: "Desconecta antes del día de exámenes." }
+    ]
+  },
+
+  /* ── SEMANA 1: 5–9 MAYO ─────────────────────────────────────── */
+  "2026-05-05": {
+    type: "clase", gym: true,
+    note: "EX. Óptica Geométrica (Física) + EX. Cónico (DT) · Prep. Writing Inglés",
+    tip: "💡 Tras los exámenes de hoy, la tarde va para preparar el Writing de mañana.",
+    exams: [
+      { subject: "fisica", label: "EX. Óptica Geométrica",    proposed: false },
+      { subject: "dibujo", label: "EX. Cónico — Dibujo Téc.", proposed: false }
+    ],
+    blocks: [
+      { time: "08:00–14:30", subject: "clase",   label: "Clases + Examen Física + DT",   detail: "Óptica Geométrica y Cónico. Confía en el repaso. Gestiona bien el tiempo de cada examen." },
+      { time: "14:30–16:00", subject: "libre",   label: "Comida + descanso",             detail: "Los exámenes ya terminaron. Desconecta antes de estudiar." },
+      { time: "16:00–17:30", subject: "ingles",  label: "Writing Inglés",                detail: "Repasa estructuras del essay de opinión / for&against: conectores, tesis, ejemplos. Examen mañana." },
+      { time: "17:30–17:45", subject: "libre",   label: "Pausa",                         detail: "" },
+      { time: "17:45–19:15", subject: "lengua",  label: "Lengua — Comentario de texto",  detail: "Practica un comentario de texto completo cronometrado (90 min)." },
+      { time: "19:15–20:00", subject: "libre",   label: "Tiempo libre",                  detail: "" },
+      { time: "20:00–21:30", subject: "gym",     label: "Gimnasio",                      detail: "" },
+      { time: "21:30–22:00", subject: "ingles",  label: "Writing flash (repaso final)",  detail: "Lee las frases clave y conectores para mañana. Solo 20 min." }
+    ]
+  },
+
+  "2026-05-06": {
+    type: "clase", gym: true,
+    note: "EX. Writing Inglés · Lengua + Matemáticas",
+    exams: [{ subject: "ingles", label: "EX. Writing Inglés", proposed: false }],
+    tip: "💡 Lengua es prioridad las próximas semanas. El Global es el 18 de mayo.",
+    blocks: [
+      { time: "08:00–14:30", subject: "clase",   label: "Clases + Writing Inglés",        detail: "Examen de Writing. Usa conectores variados, estructura bien los párrafos y revisa al final." },
+      { time: "14:30–16:00", subject: "libre",   label: "Comida + descanso",              detail: "" },
+      { time: "16:00–17:30", subject: "lengua",  label: "Lengua — Ortografía + Gramática", detail: "Reglas ortográficas, morfosintaxis. Esencial para el Global del 18." },
+      { time: "17:30–17:45", subject: "libre",   label: "Pausa",                          detail: "" },
+      { time: "17:45–19:15", subject: "mates",   label: "Matemáticas — Álgebra",          detail: "Matrices, determinantes, sistemas. Ejercicios tipo selectividad." },
+      { time: "19:15–20:00", subject: "libre",   label: "Tiempo libre",                   detail: "" },
+      { time: "20:00–21:30", subject: "gym",     label: "Gimnasio",                       detail: "" },
+      { time: "21:30–22:00", subject: "lengua",  label: "Repaso Lengua flash",            detail: "Lee los apuntes de ortografía y gramática de hoy." }
+    ]
+  },
+
+  "2026-05-07": {
+    type: "clase", gym: true,
+    note: "Prep. Reading + UoE Inglés (mañana) + DT Simulacro",
+    tip: "💡 Reading en inglés: lee el título y las preguntas ANTES del texto para saber qué buscar.",
+    blocks: [
+      { time: "08:00–14:30", subject: "clase",   label: "Clases",                         detail: "" },
+      { time: "14:30–16:00", subject: "libre",   label: "Comida + descanso",              detail: "" },
+      { time: "16:00–17:30", subject: "ingles",  label: "Reading + Use of English",       detail: "Textos de comprensión + gramática. Examen mañana. Practica bajo tiempo." },
+      { time: "17:30–17:45", subject: "libre",   label: "Pausa",                          detail: "" },
+      { time: "17:45–19:15", subject: "dibujo",  label: "DT — Simulacro / Perspectivas", detail: "Ejercicio de perspectiva axonométrica o perspectiva caballera. Cronometrado." },
+      { time: "19:15–20:00", subject: "libre",   label: "Tiempo libre",                   detail: "" },
+      { time: "20:00–21:30", subject: "gym",     label: "Gimnasio",                       detail: "" },
+      { time: "21:30–22:00", subject: "ingles",  label: "Reading flash",                  detail: "Lee un texto corto y repasa estrategias de comprensión lectora." }
+    ]
+  },
+
+  "2026-05-08": {
+    type: "clase", gym: true,
+    note: "EX. Reading + Use of English (Inglés) · Lengua + DT Simulacro",
+    exams: [{ subject: "ingles", label: "EX. Reading + Use of English", proposed: false }],
+    blocks: [
+      { time: "08:00–14:30", subject: "clase",   label: "Clases + Reading + UoE",         detail: "Lee con calma y gestiona el tiempo. Las preguntas de comprensión van en orden en el texto." },
+      { time: "14:30–16:00", subject: "libre",   label: "Comida + descanso",              detail: "" },
+      { time: "16:00–17:30", subject: "lengua",  label: "Lengua — Literatura",            detail: "Repasa los temas literarios para el Global del 18." },
+      { time: "17:30–17:45", subject: "libre",   label: "Pausa",                          detail: "" },
+      { time: "17:45–19:15", subject: "dibujo",  label: "DT — Simulacro completo",        detail: "Ejercicio completo de DT con cronómetro. Simula condiciones reales." },
+      { time: "19:15–20:00", subject: "libre",   label: "Tiempo libre",                   detail: "" },
+      { time: "20:00–21:30", subject: "gym",     label: "Gimnasio",                       detail: "" },
+      { time: "21:30–22:00", subject: "mates",   label: "Repaso Mates flash",             detail: "Fórmulas y conceptos clave que estés viendo en clase." }
+    ]
+  },
+
+  "2026-05-09": {
+    type: "finde", gym: false,
+    note: "Fin de semana — Matemáticas + DT (sin gimnasio)",
+    tip: "💡 Sin gym los fines de semana. Aprovecha para hacer simulacros largos sin interrupciones.",
+    blocks: [
+      { time: "10:00–12:30", subject: "mates",   label: "Matemáticas — Cálculo",          detail: "Derivadas, integrales, límites. Ejercicios tipo PAU." },
+      { time: "12:30–13:30", subject: "libre",   label: "Descanso / Comida",              detail: "" },
+      { time: "13:30–15:30", subject: "dibujo",  label: "DT — Simulacro completo",        detail: "Ejercicio completo de DT todas las partes. Cronometrado." },
+      { time: "15:30–18:00", subject: "libre",   label: "Tiempo libre 🎮",               detail: "Juega, descansa, sal. Te lo mereces." },
+      { time: "18:00–19:30", subject: "lengua",  label: "Lengua — Repaso ligero",         detail: "Lee los apuntes de literatura o gramática. Sin presión." }
+    ]
+  },
+
+  "2026-05-10": {
+    type: "finde", gym: false,
+    note: "Domingo — Descanso + repaso suave Física + Historia",
+    blocks: [
+      { time: "10:00–12:00", subject: "fisica",   label: "Física — Repaso temas",         detail: "Repasa mecánica o termodinámica. Ligero, sin ejercicios nuevos." },
+      { time: "12:00–18:00", subject: "libre",    label: "Tarde libre",                   detail: "Descarga mental antes de la semana." },
+      { time: "18:00–19:30", subject: "historia", label: "Historia — Esquemas",           detail: "Lee los apuntes de los temas más difíciles sin presión." }
+    ]
+  },
+
+  /* ── SEMANA 2: 11–16 MAYO ───────────────────────────────────── */
+  "2026-05-11": {
+    type: "clase", gym: true,
+    note: "Prep. Historia Tema 14 (examen miércoles 13) + Lengua Global",
+    tip: "💡 Empieza el repaso del Tema 14 hoy para tener dos días de margen.",
+    blocks: [
+      { time: "08:00–14:30", subject: "clase",    label: "Clases",                        detail: "" },
+      { time: "14:30–16:00", subject: "libre",    label: "Comida + descanso",             detail: "" },
+      { time: "16:00–17:30", subject: "historia", label: "Historia — Tema 14",            detail: "Empieza el repaso del Tema 14: esquema + desarrollo. Examen pasado mañana." },
+      { time: "17:30–17:45", subject: "libre",    label: "Pausa",                         detail: "" },
+      { time: "17:45–19:15", subject: "lengua",   label: "Lengua — Comentario de texto",  detail: "Practica un comentario completo. Estás preparando el Global del 18." },
+      { time: "19:15–20:00", subject: "libre",    label: "Tiempo libre",                  detail: "" },
+      { time: "20:00–21:30", subject: "gym",      label: "Gimnasio",                      detail: "" },
+      { time: "21:30–22:00", subject: "historia", label: "Historia flash",                detail: "Repasa el esquema del Tema 14 antes de dormir." }
+    ]
+  },
+
+  "2026-05-12": {
+    type: "clase", gym: true,
+    note: "Repaso final Historia Tema 14 (examen mañana) + DT Simulacro",
+    tip: "💡 Hoy, repasa solo lo que ya sabes. No estudies materia nueva antes de un examen.",
+    blocks: [
+      { time: "08:00–14:30", subject: "clase",    label: "Clases",                        detail: "" },
+      { time: "14:30–16:00", subject: "libre",    label: "Comida + descanso",             detail: "" },
+      { time: "16:00–17:30", subject: "historia", label: "Historia — Repaso final T.14",  detail: "Examen mañana. Repasa el desarrollo, fechas clave y nombres importantes. Sin materia nueva." },
+      { time: "17:30–17:45", subject: "libre",    label: "Pausa",                         detail: "" },
+      { time: "17:45–19:15", subject: "dibujo",   label: "DT — Simulacro",               detail: "Ejercicio de DT cronometrado. Mantén el ritmo de simulacros semanales." },
+      { time: "19:15–20:00", subject: "libre",    label: "Tiempo libre",                  detail: "" },
+      { time: "20:00–21:30", subject: "gym",      label: "Gimnasio",                      detail: "" },
+      { time: "21:30–22:00", subject: "historia", label: "Historia flash final",          detail: "Lee el esquema una última vez. Nada de nueva información." }
+    ]
+  },
+
+  "2026-05-13": {
+    type: "clase", gym: true,
+    note: "EX. Historia — Tema 14 · Lengua + DT Simulacro",
+    exams: [{ subject: "historia", label: "EX. Historia — Tema 14", proposed: false }],
+    blocks: [
+      { time: "08:00–14:30", subject: "clase",    label: "Clases + Examen Historia",      detail: "Examen Historia Tema 14. Estructura bien la respuesta: intro, desarrollo, conclusión." },
+      { time: "14:30–16:00", subject: "libre",    label: "Comida + descanso",             detail: "" },
+      { time: "16:00–17:30", subject: "lengua",   label: "Lengua — Literatura/Redacción", detail: "Sigue preparando el Global del 18. Redacción argumentativa y análisis de texto." },
+      { time: "17:30–17:45", subject: "libre",    label: "Pausa",                         detail: "" },
+      { time: "17:45–19:15", subject: "dibujo",   label: "DT — Normalización + Vistas",  detail: "Practica los ejercicios de normalización y obtención de vistas." },
+      { time: "19:15–20:00", subject: "libre",    label: "Tiempo libre",                  detail: "" },
+      { time: "20:00–21:30", subject: "gym",      label: "Gimnasio",                      detail: "" },
+      { time: "21:30–22:00", subject: "mates",    label: "Mates flash",                   detail: "" }
+    ]
+  },
+
+  "2026-05-14": {
+    type: "clase", gym: true,
+    note: "EX. Filosofía 1 (propuesto) · Física PAU + DT Simulacro",
+    tip: "💡 El examen de Filosofía está propuesto. Cuando se confirme la fecha, actualiza este día.",
+    exams: [{ subject: "filosofia", label: "EX. Filosofía 1 (fecha propuesta)", proposed: true }],
+    blocks: [
+      { time: "08:00–14:30", subject: "clase",    label: "Clases + Examen Filosofía 1",   detail: "Examen de Filosofía propuesto. Argumenta con claridad, define los conceptos clave." },
+      { time: "14:30–16:00", subject: "libre",    label: "Comida + descanso",             detail: "" },
+      { time: "16:00–17:30", subject: "fisica",   label: "Física — Temas PAU",            detail: "Mecánica, ondas, electricidad. Ejercicios tipo selectividad." },
+      { time: "17:30–17:45", subject: "libre",    label: "Pausa",                         detail: "" },
+      { time: "17:45–19:15", subject: "dibujo",   label: "DT — Simulacro completo",       detail: "Otro simulacro completo. Estás haciendo uno cada 2-3 días, mantén el ritmo." },
+      { time: "19:15–20:00", subject: "libre",    label: "Tiempo libre",                  detail: "" },
+      { time: "20:00–21:30", subject: "gym",      label: "Gimnasio",                      detail: "" },
+      { time: "21:30–22:00", subject: "fisica",   label: "Física flash",                  detail: "Repasa las fórmulas del tema de hoy." }
+    ]
+  },
+
+  "2026-05-15": {
+    type: "clase", gym: true,
+    note: "Prep. Física + Global Lengua (18 mayo, 3 días) — Semana clave",
+    tip: "💡 Faltan 3 días para los exámenes más importantes de bachillerato. Prioriza Lengua y Física.",
+    blocks: [
+      { time: "08:00–14:30", subject: "clase",    label: "Clases",                        detail: "" },
+      { time: "14:30–16:00", subject: "libre",    label: "Comida + descanso",             detail: "" },
+      { time: "16:00–17:30", subject: "lengua",   label: "Lengua — Simulacro Global",     detail: "Haz una prueba simulada completa del Global: comentario + redacción. Cronometrado." },
+      { time: "17:30–17:45", subject: "libre",    label: "Pausa",                         detail: "" },
+      { time: "17:45–19:15", subject: "fisica",   label: "Física — Electricidad",         detail: "Ley de Coulomb, campo eléctrico, potencial, condensadores." },
+      { time: "19:15–20:00", subject: "libre",    label: "Tiempo libre",                  detail: "" },
+      { time: "20:00–21:30", subject: "gym",      label: "Gimnasio",                      detail: "" },
+      { time: "21:30–22:00", subject: "lengua",   label: "Corrección simulacro Lengua",   detail: "Corrige el ejercicio de hoy. Anota los puntos débiles." }
+    ]
+  },
+
+  "2026-05-16": {
+    type: "finde", gym: false,
+    note: "Fin de semana — Intensivo Física + Mates (sin gimnasio)",
+    tip: "💡 Aprovecha el fin de semana para sesiones largas de Física y Mates sin interrupciones.",
+    blocks: [
+      { time: "09:30–11:30", subject: "fisica",   label: "Física — Electricidad+Magnet.", detail: "Circuitos, ley de Ohm, campo magnético, inducción electromagnética." },
+      { time: "11:30–12:00", subject: "libre",    label: "Pausa",                         detail: "" },
+      { time: "12:00–14:00", subject: "mates",    label: "Matemáticas — Vectores",        detail: "Vectores, rectas y planos en el espacio. Ejercicios." },
+      { time: "14:00–16:00", subject: "libre",    label: "Comida + descanso",             detail: "" },
+      { time: "16:00–18:00", subject: "lengua",   label: "Lengua — Literatura",           detail: "Repasa autores y obras clave. Prepara respuestas de literatura para el Global." },
+      { time: "18:00–20:00", subject: "libre",    label: "Tiempo libre 🎮",              detail: "" }
+    ]
+  },
+
+  "2026-05-17": {
+    type: "finde", gym: false,
+    note: "Domingo — Repaso ligero antes de los exámenes del lunes 18",
+    tip: "💡 No estudies materia nueva hoy. Solo consolida lo que ya sabes. Duerme bien esta noche.",
+    blocks: [
+      { time: "10:00–12:00", subject: "lengua",   label: "Lengua — Repaso final Global",  detail: "Repasa los puntos más flojos del comentario de texto y ortografía." },
+      { time: "12:00–13:30", subject: "fisica",   label: "Física — Fórmulas clave",       detail: "Solo fórmulas y conceptos teóricos. Sin ejercicios nuevos." },
+      { time: "13:30–18:00", subject: "libre",    label: "Tarde libre",                   detail: "Descansa. Mañana tienes dos exámenes muy importantes." },
+      { time: "18:00–19:30", subject: "dibujo",   label: "DT — Repaso ligero",            detail: "Apuntes de normalización y sistemas de representación. Sin simulacros." }
+    ]
+  },
+
+  /* ── SEMANA 3: 18–22 MAYO ───────────────────────────────────── */
+  "2026-05-18": {
+    type: "clase", gym: true,
+    note: "⚠️ EXÁMENES CLAVE: Física Final + Global de Lengua",
+    tip: "💡 Día duro. Esta tarde no te exijas demasiado: estudia de forma ligera y gym obligatorio para bajar el estrés.",
+    exams: [
+      { subject: "fisica",  label: "EX. Física — Final de Bachillerato", proposed: false },
+      { subject: "lengua",  label: "EX. Global de Lengua",                proposed: false }
+    ],
+    blocks: [
+      { time: "08:00–14:30", subject: "clase",    label: "Clases + Física + Global Lengua", detail: "Dos exámenes importantes. Gestiona el tiempo y confía en tu preparación." },
+      { time: "14:30–16:30", subject: "libre",    label: "Comida + descanso OBLIGATORIO",  detail: "Hoy es obligatorio descansar antes de estudiar. Te lo has ganado." },
+      { time: "16:30–18:00", subject: "mates",    label: "Matemáticas — Repaso ligero",    detail: "Repaso suave de todos los temas. Sin presión." },
+      { time: "18:00–19:30", subject: "historia", label: "Historia España — PAU",          detail: "Repasa los temas de selectividad. Esquemas y fechas." },
+      { time: "19:30–20:00", subject: "libre",    label: "Tiempo libre",                   detail: "" },
+      { time: "20:00–21:30", subject: "gym",      label: "Gimnasio",                       detail: "Especialmente importante hoy. Libera el estrés del día." },
+      { time: "21:30–22:00", subject: "libre",    label: "Noche tranquila",               detail: "No estudies más esta noche. Duerme bien." }
+    ]
+  },
+
+  "2026-05-19": {
+    type: "clase", gym: true,
+    note: "Mates — Cálculo + DT Simulacro",
+    blocks: [
+      { time: "08:00–14:30", subject: "clase",    label: "Clases",                         detail: "" },
+      { time: "14:30–16:00", subject: "libre",    label: "Comida + descanso",              detail: "" },
+      { time: "16:00–17:30", subject: "mates",    label: "Matemáticas — Funciones+Cálculo","detail": "Derivadas, máximos/mínimos, integrales. Ejercicios tipo PAU." },
+      { time: "17:30–17:45", subject: "libre",    label: "Pausa",                          detail: "" },
+      { time: "17:45–19:15", subject: "dibujo",   label: "DT — Simulacro completo",        detail: "Ejercicio tipo PAU cronometrado. Muy importante mantener la práctica." },
+      { time: "19:15–20:00", subject: "libre",    label: "Tiempo libre",                   detail: "" },
+      { time: "20:00–21:30", subject: "gym",      label: "Gimnasio",                       detail: "" },
+      { time: "21:30–22:00", subject: "mates",    label: "Mates flash",                    detail: "" }
+    ]
+  },
+
+  "2026-05-20": {
+    type: "clase", gym: true,
+    note: "EX. Filosofía 2 (propuesto) · Historia PAU + Mates",
+    tip: "💡 El examen de Filosofía está propuesto. Actualiza cuando confirmes la fecha real.",
+    exams: [{ subject: "filosofia", label: "EX. Filosofía 2 (fecha propuesta)", proposed: true }],
+    blocks: [
+      { time: "08:00–14:30", subject: "clase",    label: "Clases + Examen Filosofía 2",   detail: "Segundo examen de Filosofía propuesto. Razona y argumenta con rigor." },
+      { time: "14:30–16:00", subject: "libre",    label: "Comida + descanso",             detail: "" },
+      { time: "16:00–17:30", subject: "historia", label: "Historia España — PAU",         detail: "Repasa los temas más probables de selectividad. Practica redacciones." },
+      { time: "17:30–17:45", subject: "libre",    label: "Pausa",                         detail: "" },
+      { time: "17:45–19:15", subject: "mates",    label: "Matemáticas — Estadística",     detail: "Estadística y probabilidad. Distribución normal y binomial." },
+      { time: "19:15–20:00", subject: "libre",    label: "Tiempo libre",                  detail: "" },
+      { time: "20:00–21:30", subject: "gym",      label: "Gimnasio",                      detail: "" },
+      { time: "21:30–22:00", subject: "historia", label: "Historia flash",                detail: "Esquemas de los temas de hoy." }
+    ]
+  },
+
+  "2026-05-21": {
+    type: "clase", gym: true,
+    note: "EX. Recuperación Final Física · DT + Inglés PAU",
+    exams: [{ subject: "fisica", label: "EX. Recuperación Final Física", proposed: false }],
+    blocks: [
+      { time: "08:00–14:30", subject: "clase",    label: "Clases + Rec. Final Física",    detail: "Recuperación de Física. Demuestra lo aprendido durante el curso." },
+      { time: "14:30–16:00", subject: "libre",    label: "Comida + descanso",             detail: "" },
+      { time: "16:00–17:30", subject: "dibujo",   label: "DT — Repaso PAU",              detail: "Repasa sistemas de representación y normalización para la selectividad." },
+      { time: "17:30–17:45", subject: "libre",    label: "Pausa",                         detail: "" },
+      { time: "17:45–19:15", subject: "ingles",   label: "Inglés — Essay + Estructuras",  detail: "Repasa el essay de opinión y estructuras gramaticales del examen PAU." },
+      { time: "19:15–20:00", subject: "libre",    label: "Tiempo libre",                  detail: "" },
+      { time: "20:00–21:30", subject: "gym",      label: "Gimnasio",                      detail: "" },
+      { time: "21:30–22:00", subject: "historia", label: "Historia PAU flash",            detail: "" }
+    ]
+  },
+
+  "2026-05-22": {
+    type: "clase", gym: true,
+    note: "Último día de clase — Empieza la Fase 2 esta tarde",
+    tip: "💡 ¡Último día de cole! Esta tarde arranca la preparación exclusiva para la selectividad.",
+    blocks: [
+      { time: "08:00–14:30", subject: "clase",    label: "Último día de clases",          detail: "Atiende bien. Puede haber información relevante sobre la selectividad." },
+      { time: "14:30–16:00", subject: "libre",    label: "Comida + pequeño respiro",      detail: "Relájate un rato, pero recuerda que queda la PAU." },
+      { time: "16:00–17:30", subject: "lengua",   label: "Lengua — Repaso PAU",           detail: "Comentario de texto y redacción de selectividad." },
+      { time: "17:30–17:45", subject: "libre",    label: "Pausa",                         detail: "" },
+      { time: "17:45–19:15", subject: "dibujo",   label: "DT — Simulacro PAU",           detail: "Ejercicio tipo PAU. Es el inicio de la fase intensiva." },
+      { time: "19:15–20:00", subject: "libre",    label: "Tiempo libre",                  detail: "" },
+      { time: "20:00–21:30", subject: "gym",      label: "Gimnasio",                      detail: "" },
+      { time: "21:30–22:00", subject: "mates",    label: "Mates flash",                   detail: "" }
+    ]
+  },
+
+  /* ── FASE 2: INTENSIVO PAU (23–31 MAYO) ─────────────────────── */
+  "2026-05-23": {
+    type: "intensivo", gym: false,
+    note: "Fase 2 arranque — Lengua simulacro + Historia + Mates (sábado, sin gym)",
+    tip: "💡 Primer día de la fase intensiva. Empieza fuerte con un simulacro real de Lengua.",
+    blocks: [
+      { time: "09:00–11:00", subject: "lengua",   label: "Lengua — Simulacro PAU",        detail: "Examen completo de Lengua simulado. Cronometrado. Corrige después con rúbrica." },
+      { time: "11:00–11:15", subject: "libre",    label: "Pausa",                         detail: "" },
+      { time: "11:15–13:15", subject: "historia", label: "Historia España — Temas PAU",   detail: "Redacta desarrollos completos de los temas más probables." },
+      { time: "13:15–15:30", subject: "libre",    label: "Comida + descanso",             detail: "" },
+      { time: "15:30–17:30", subject: "mates",    label: "Matemáticas — Álgebra PAU",     detail: "Matrices, sistemas de ecuaciones, espacios vectoriales." },
+      { time: "17:30–19:30", subject: "libre",    label: "Tarde libre 🎮",               detail: "" }
+    ]
+  },
+
+  "2026-05-24": {
+    type: "intensivo", gym: false,
+    note: "Domingo — Inglés PAU + Historia (sin gym)",
+    tip: "💡 Domingo más tranquilo. El inglés lo llevas bien, úsalo para descansar mentalmente mientras repassas.",
+    blocks: [
+      { time: "10:00–12:00", subject: "ingles",   label: "Inglés — Simulacro PAU",        detail: "Examen completo: reading, writing y grammar. Cronometrado." },
+      { time: "12:00–12:15", subject: "libre",    label: "Pausa",                         detail: "" },
+      { time: "12:15–13:30", subject: "historia", label: "Historia — Temas flojos",       detail: "Identifica los temas que más te cuestan y repásalos." },
+      { time: "13:30–18:00", subject: "libre",    label: "Tarde libre",                   detail: "Descansa. La semana siguiente es la más intensa." }
+    ]
+  },
+
+  "2026-05-25": {
+    type: "intensivo", gym: true,
+    note: "Lunes Intensivo — Lengua + Matemáticas (gym incluido)",
+    tip: "💡 Empieza los bloques de estudio a las 8:30 para tener más horas productivas por la mañana.",
+    blocks: [
+      { time: "08:30–10:30", subject: "lengua",   label: "Lengua — Simulacro comentario", detail: "Texto completo cronometrado (90 min). Corrígelo con la rúbrica." },
+      { time: "10:30–10:45", subject: "libre",    label: "Pausa activa",                  detail: "Estira, toma agua, sal 5 min." },
+      { time: "10:45–12:45", subject: "mates",    label: "Matemáticas — Cálculo dif.",    detail: "Derivadas, regla de la cadena, optimización. Ejercicios tipo PAU." },
+      { time: "12:45–14:30", subject: "libre",    label: "Comida + descanso",             detail: "" },
+      { time: "14:30–16:30", subject: "lengua",   label: "Lengua — Redacción+Ortografía", detail: "Practica redacción argumentativa. Corrige la ortografía del simulacro de hoy." },
+      { time: "16:30–16:45", subject: "libre",    label: "Pausa",                         detail: "" },
+      { time: "16:45–18:00", subject: "mates",    label: "Mates — Repaso fórmulas",       detail: "Consolida lo aprendido hoy. Fórmulas clave del cálculo." },
+      { time: "18:00–20:00", subject: "libre",    label: "Tiempo libre 🎮",              detail: "" },
+      { time: "20:00–21:30", subject: "gym",      label: "Gimnasio",                      detail: "" },
+      { time: "21:30–22:00", subject: "lengua",   label: "Lengua flash nocturno",         detail: "Lee los esquemas de hoy antes de dormir." }
+    ]
+  },
+
+  "2026-05-26": {
+    type: "intensivo", gym: true,
+    note: "Martes Intensivo — Física + Dibujo Técnico (gym incluido)",
+    tip: "💡 Hoy es el día de Física y DT. Ambas requieren práctica activa, no solo teoría.",
+    blocks: [
+      { time: "08:30–10:30", subject: "fisica",   label: "Física — Simulacro PAU",        detail: "Examen completo de Física tipo PAU. Cronometrado. 5 problemas, gestiona 25 min cada uno." },
+      { time: "10:30–10:45", subject: "libre",    label: "Pausa activa",                  detail: "" },
+      { time: "10:45–12:45", subject: "dibujo",   label: "DT — Simulacro completo",       detail: "Ejercicio completo de DT. Simula las condiciones reales del examen PAU." },
+      { time: "12:45–14:30", subject: "libre",    label: "Comida + descanso",             detail: "" },
+      { time: "14:30–16:30", subject: "fisica",   label: "Física — Corrección simulacro", detail: "Corrige el simulacro de esta mañana. Identifica errores y repasa esos temas." },
+      { time: "16:30–16:45", subject: "libre",    label: "Pausa",                         detail: "" },
+      { time: "16:45–18:00", subject: "dibujo",   label: "DT — Corrección y teoría",     detail: "Corrige el simulacro y repasa la teoría de los errores cometidos." },
+      { time: "18:00–20:00", subject: "libre",    label: "Tiempo libre 🎮",              detail: "" },
+      { time: "20:00–21:30", subject: "gym",      label: "Gimnasio",                      detail: "" },
+      { time: "21:30–22:00", subject: "fisica",   label: "Física flash",                  detail: "Fórmulas de los temas donde fallaste hoy." }
+    ]
+  },
+
+  "2026-05-27": {
+    type: "intensivo", gym: true,
+    note: "Miércoles Intensivo — Lengua + Historia (gym incluido)",
+    blocks: [
+      { time: "08:30–10:30", subject: "lengua",   label: "Lengua — Literatura PAU",       detail: "Repasa generaciones literarias, autores del s.XX, obras clave. Practica respuestas." },
+      { time: "10:30–10:45", subject: "libre",    label: "Pausa activa",                  detail: "" },
+      { time: "10:45–12:45", subject: "historia", label: "Historia — Simulacro PAU",      detail: "Examen completo de Historia cronometrado." },
+      { time: "12:45–14:30", subject: "libre",    label: "Comida + descanso",             detail: "" },
+      { time: "14:30–16:30", subject: "lengua",   label: "Lengua — Gramática y sintaxis", detail: "Análisis sintáctico, morfología, tipos de texto y funciones del lenguaje." },
+      { time: "16:30–16:45", subject: "libre",    label: "Pausa",                         detail: "" },
+      { time: "16:45–18:00", subject: "historia", label: "Historia — Corrección+repaso",  detail: "Corrige el simulacro. Repasa los temas donde fallaste." },
+      { time: "18:00–20:00", subject: "libre",    label: "Tiempo libre 🎮",              detail: "" },
+      { time: "20:00–21:30", subject: "gym",      label: "Gimnasio",                      detail: "" },
+      { time: "21:30–22:00", subject: "historia", label: "Historia flash nocturno",       detail: "" }
+    ]
+  },
+
+  "2026-05-28": {
+    type: "intensivo", gym: true,
+    note: "Jueves Intensivo — Matemáticas + Física (gym incluido)",
+    tip: "💡 Doble jornada de exactas. Simulacro de Mates por la tarde: el examen PAU es el 3 de junio.",
+    blocks: [
+      { time: "08:30–10:30", subject: "mates",    label: "Mates — Geometría analítica",   detail: "Vectores, ecuaciones de rectas y planos. Distancias y ángulos." },
+      { time: "10:30–10:45", subject: "libre",    label: "Pausa activa",                  detail: "" },
+      { time: "10:45–12:45", subject: "fisica",   label: "Física — Ondas y óptica",       detail: "Ondas, sonido, óptica geométrica. Ejercicios tipo PAU." },
+      { time: "12:45–14:30", subject: "libre",    label: "Comida + descanso",             detail: "" },
+      { time: "14:30–16:30", subject: "mates",    label: "Mates — Simulacro PAU",         detail: "Examen completo de Matemáticas tipo PAU. Cronometrado." },
+      { time: "16:30–16:45", subject: "libre",    label: "Pausa",                         detail: "" },
+      { time: "16:45–18:00", subject: "fisica",   label: "Física — Electricidad",         detail: "Ley de Coulomb, campo eléctrico, condensadores, ley de Faraday." },
+      { time: "18:00–20:00", subject: "libre",    label: "Tiempo libre 🎮",              detail: "" },
+      { time: "20:00–21:30", subject: "gym",      label: "Gimnasio",                      detail: "" },
+      { time: "21:30–22:00", subject: "mates",    label: "Corrección simulacro Mates",    detail: "Corrige el examen de esta tarde. Identifica los puntos débiles." }
+    ]
+  },
+
+  "2026-05-29": {
+    type: "intensivo", gym: true,
+    note: "Viernes Intensivo — Lengua + DT (últimos simulacros antes de la semana final)",
+    tip: "💡 Últimos simulacros 'frescos' de Lengua y DT. El fin de semana se hace el simulacro global del Día 1.",
+    blocks: [
+      { time: "08:30–10:30", subject: "lengua",   label: "Lengua — Simulacro PAU final",  detail: "Examen completo de Lengua simulado. Examen real el 2 de junio." },
+      { time: "10:30–10:45", subject: "libre",    label: "Pausa activa",                  detail: "" },
+      { time: "10:45–12:45", subject: "dibujo",   label: "DT — Simulacro final PAU",      detail: "Examen real el 4 de junio. Último simulacro completo." },
+      { time: "12:45–14:30", subject: "libre",    label: "Comida + descanso",             detail: "" },
+      { time: "14:30–16:00", subject: "lengua",   label: "Lengua — Corrección+repaso",    detail: "Corrige el simulacro. Anota los errores y repasa esas partes." },
+      { time: "16:00–17:30", subject: "dibujo",   label: "DT — Corrección y teoría",     detail: "Corrige el simulacro de DT y repasa la teoría de los fallos." },
+      { time: "17:30–20:00", subject: "libre",    label: "Tiempo libre 🎮",              detail: "" },
+      { time: "20:00–21:30", subject: "gym",      label: "Gimnasio",                      detail: "Última sesión de gym antes de la semana de exámenes." },
+      { time: "21:30–22:00", subject: "ingles",   label: "Inglés flash",                  detail: "Conectores, estructuras de writing y vocabulario temático." }
+    ]
+  },
+
+  "2026-05-30": {
+    type: "intensivo", gym: false,
+    note: "Sábado — Gran simulacro Día 1 Selectividad: Lengua + Historia + Inglés",
+    tip: "💡 Simula exactamente el Día 1 de la PAU. El 2 de junio te tocará hacer esto de verdad.",
+    blocks: [
+      { time: "09:00–12:00", subject: "lengua",   label: "Simulacro Día 1 — Lengua",      detail: "3 horas simuladas. Condiciones reales: sin apuntes, cronometrado, en silencio." },
+      { time: "12:00–12:30", subject: "libre",    label: "Pausa",                         detail: "" },
+      { time: "12:30–14:30", subject: "historia", label: "Simulacro Día 1 — Historia",    detail: "Examen de Historia completo simulado. 2 horas." },
+      { time: "14:30–16:00", subject: "libre",    label: "Comida + descanso",             detail: "" },
+      { time: "16:00–17:30", subject: "ingles",   label: "Simulacro Día 1 — Inglés",      detail: "Examen de Inglés completo simulado." },
+      { time: "17:30–19:00", subject: "libre",    label: "Revisión rápida",               detail: "Revisa los tres simulacros. Anota únicamente los puntos débiles." },
+      { time: "19:00–21:00", subject: "libre",    label: "Tarde libre 🎮",               detail: "" }
+    ]
+  },
+
+  "2026-05-31": {
+    type: "intensivo", gym: false,
+    note: "Domingo — Repaso final Mates + Física + DT (última noche de estudio)",
+    tip: "💡 Hoy es la última noche de estudio. Solo repasa. Esta noche duerme bien: mañana descansas.",
+    blocks: [
+      { time: "10:00–12:00", subject: "mates",    label: "Matemáticas — Repaso final",    detail: "Repasa solo los temas con más dudas. Sin materia nueva." },
+      { time: "12:00–12:15", subject: "libre",    label: "Pausa",                         detail: "" },
+      { time: "12:15–13:30", subject: "fisica",   label: "Física — Fórmulas clave",       detail: "Solo fórmulas y teoría. Sin ejercicios nuevos ni complicados." },
+      { time: "13:30–16:00", subject: "libre",    label: "Comida + descanso",             detail: "" },
+      { time: "16:00–17:30", subject: "dibujo",   label: "DT — Repaso final teoría",     detail: "Lee los apuntes de sistemas de representación. Sin simulacros." },
+      { time: "17:30–19:00", subject: "ingles",   label: "Inglés — Vocabulario+estruc.",  detail: "Conectores, writing y vocabulario temático. Ligero." },
+      { time: "19:00–22:00", subject: "libre",    label: "🌙 Noche libre — A descansar",  detail: "Mañana es el día libre. Esta noche relájate y duerme bien." }
+    ]
+  },
+
+  /* ── JUNIO ──────────────────────────────────────────────────── */
+  "2026-06-01": {
+    type: "descanso", gym: true,
+    note: "🌴 DÍA LIBRE TOTAL — Nada de estudiar. Mañana empieza la selectividad.",
+    tip: "💡 El descanso es parte del entrenamiento. El cerebro consolida lo aprendido mientras descansas. Confía en tu preparación.",
+    blocks: [
+      { time: "Todo el día", subject: "libre",    label: "Día completamente libre",        detail: "Sal, come bien, ve al cine, juega, queda con tus amigos. Desconexión total." },
+      { time: "20:00–21:30", subject: "gym",      label: "Gimnasio (opcional)",            detail: "Solo si te apetece de verdad. Una sesión suave para soltar tensión." },
+      { time: "22:00",       subject: "libre",    label: "Acuéstate temprano",             detail: "8 horas de sueño. Mañana empieza la selectividad." }
+    ]
+  },
+
+  "2026-06-02": {
+    type: "selectividad", gym: false,
+    note: "🎓 SELECTIVIDAD DÍA 1 — Lengua y Literatura + Historia de España + Inglés",
+    tip: "💡 Llega 15 min antes. Lee TODAS las preguntas antes de empezar. Distribuye el tiempo desde el principio.",
+    exams: [
+      { subject: "lengua",   label: "PAU — Lengua y Literatura" },
+      { subject: "historia", label: "PAU — Historia de España" },
+      { subject: "ingles",   label: "PAU — Inglés" }
+    ],
+    blocks: [
+      { time: "08:00–15:00", subject: "clase",    label: "Exámenes: Lengua + Historia + Inglés", detail: "Lee bien las preguntas. Gestiona el tiempo. Confía en ti." },
+      { time: "15:00–16:30", subject: "libre",    label: "Comida + descanso",             detail: "Come bien. Evita hablar de los exámenes si te estresan." },
+      { time: "16:30–18:00", subject: "mates",    label: "Repaso suave Matemáticas",      detail: "Solo fórmulas y ejercicios sencillos para mañana. Sin agobios." },
+      { time: "18:00–19:30", subject: "fisica",   label: "Repaso suave Física",           detail: "Conceptos teóricos y fórmulas. Sin ejercicios nuevos difíciles." },
+      { time: "22:00",       subject: "libre",    label: "A dormir",                      detail: "8 horas. Mañana: Matemáticas y Física." }
+    ]
+  },
+
+  "2026-06-03": {
+    type: "selectividad", gym: false,
+    note: "🎓 SELECTIVIDAD DÍA 2 — Matemáticas II + Física",
+    tip: "💡 En Mates: lee los enunciados dos veces antes de empezar. Empieza por los problemas que más controlas.",
+    exams: [
+      { subject: "mates",   label: "PAU — Matemáticas II" },
+      { subject: "fisica",  label: "PAU — Física" }
+    ],
+    blocks: [
+      { time: "08:00–15:00", subject: "clase",    label: "Exámenes: Mates + Física",      detail: "Lee los problemas con calma. Empieza por los que controlas. Gestiona el tiempo." },
+      { time: "15:00–16:30", subject: "libre",    label: "Comida + descanso",             detail: "" },
+      { time: "16:30–18:00", subject: "dibujo",   label: "Repaso suave DT",              detail: "Solo repasa los pasos de los ejercicios. Sin simulacros." },
+      { time: "22:00",       subject: "libre",    label: "A dormir",                      detail: "Mañana es el último examen: DT. ¡Ya casi!" }
+    ]
+  },
+
+  "2026-06-04": {
+    type: "selectividad", gym: false,
+    note: "🎓 SELECTIVIDAD DÍA 3 — Dibujo Técnico II",
+    tip: "💡 ¡Último examen! Aplica todo lo practicado. Lee el enunciado completo antes de empezar a trazar.",
+    exams: [
+      { subject: "dibujo", label: "PAU — Dibujo Técnico II" }
+    ],
+    blocks: [
+      { time: "08:00–15:00", subject: "clase",    label: "Examen: Dibujo Técnico",        detail: "¡Último examen de la selectividad! Tranquilo, aplica todo lo entrenado." },
+      { time: "15:00 →",     subject: "libre",    label: "🎉 ¡SELECTIVIDAD TERMINADA!",  detail: "¡Lo conseguiste! A celebrar con los tuyos. Te lo mereces." }
+    ]
+  }
+
+}; /* fin HORARIO */
+
+
+/* ================================================================
+   SECCIÓN 3 — MOTOR DE RENDERIZADO
+   No necesitas modificar nada a partir de aquí.
+   ================================================================ */
+
+/* Construcción de la leyenda */
+const $legend = document.getElementById('legend');
+const legendItems = ['lengua','mates','fisica','dibujo','historia','ingles','filosofia','gym'];
+legendItems.forEach(k => {
+  const a = ASIGNATURAS[k];
+  const el = document.createElement('div');
+  el.className = 'legend-item';
+  el.innerHTML = `<div class="legend-dot" style="background:${a.color}"></div>${a.label}`;
+  $legend.appendChild(el);
+});
+
+/* Countdown */
+(function(){
+  const target = new Date(2026,5,2);
+  const now    = new Date();
+  const diff   = Math.ceil((target - now) / 86400000);
+  const el = document.getElementById('countdown');
+  if (diff > 0) el.textContent = `⏳ Quedan ${diff} días para la selectividad`;
+  else if (diff === 0) el.textContent = '🎓 ¡Hoy empieza la selectividad!';
+  else el.textContent = '✅ ¡Selectividad superada!';
+})();
+
+/* Día de la semana (0=Lun … 6=Dom) */
+function dow(y,m,d){ return (new Date(y,m-1,d).getDay()+6)%7; }
+function isWknd(y,m,d){ const w=dow(y,m,d); return w===5||w===6; }
+
+/* Color CSS class por subject */
+function colClass(s){ return `col-${s||'libre'}`; }
+
+/* Badge del día */
+function badgeFor(type,isWk){
+  if(type==='selectividad') return ['badge-pau','PAU'];
+  if(type==='descanso')     return ['badge-descanso','Descanso'];
+  if(type==='puente')       return ['badge-puente','Puente'];
+  if(type==='intensivo')    return ['badge-intensivo','Intensivo'];
+  if(isWk)                  return ['badge-libre','Libre'];
+  return ['badge-clase','Clase'];
+}
+
+/* Bloques mini para la celda del calendario */
+function getMiniBlocks(d){
+  if(!d) return '';
+  const subs = [...new Set((d.blocks||[]).map(b=>b.subject).filter(s=>s&&s!=='libre'&&s!=='clase'))].slice(0,3);
+  return subs.map(s=>{
+    const a=ASIGNATURAS[s]||{label:s,color:'#888'};
+    return `<div class="mini-block" style="background:${a.color}22;color:${a.color}">${a.label}</div>`;
+  }).join('');
+}
+
+/* Renderizar un mes */
+function renderMonth(containerId, year, month, totalDays){
+  const c = document.getElementById(containerId);
+  const DN = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  DN.forEach(n=>{ const el=document.createElement('div'); el.className='day-name'; el.textContent=n; c.appendChild(el); });
+
+  const start = dow(year,month,1);
+  for(let i=0;i<start;i++){ const el=document.createElement('div'); el.className='day-cell empty'; c.appendChild(el); }
+
+  for(let day=1;day<=totalDays;day++){
+    const key = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const d = HORARIO[key];
+    const wk = isWknd(year,month,day);
+    const type = d ? d.type : (wk?'finde':'clase');
+
+    const el = document.createElement('div');
+    const classes = ['day-cell'];
+    if(wk) classes.push('weekend');
+    if(type==='descanso') classes.push('descanso');
+    if(type==='selectividad') classes.push('selectividad-day');
+    if(type==='puente') classes.push('puente');
+    el.className = classes.join(' ');
+
+    const [badgeCls, badgeTxt] = badgeFor(type, wk);
+
+    let examDots = '';
+    if(d && d.exams){
+      d.exams.forEach(ex=>{
+        const a=ASIGNATURAS[ex.subject]||{color:'#888'};
+        const border = ex.proposed ? `border:1px dashed ${a.color};` : `background:${a.color}`;
+        examDots += `<div style="display:inline-block;width:7px;height:7px;border-radius:50%;${border};margin-right:2px;margin-bottom:2px;"></div>`;
+      });
+    }
+
+    el.innerHTML = `
+      <div class="day-num">
+        <span>${day}</span>
+        <span class="day-badge ${badgeCls}">${badgeTxt}</span>
+      </div>
+      ${examDots ? `<div style="margin-bottom:3px">${examDots}</div>` : ''}
+      <div class="day-blocks">${getMiniBlocks(d)}</div>
+    `;
+
+    if(d) el.addEventListener('click', ()=>openModal(key, year, month, day));
+    else  el.style.cursor = 'default';
+
+    c.appendChild(el);
+  }
+}
+
+/* Meses */
+const MONTHS_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+renderMonth('cal-mayo',  2026, 5, 31);
+renderMonth('cal-junio', 2026, 6,  4);
+
+/* Modal */
+function openModal(key, year, month, day){
+  const d = HORARIO[key];
+  if(!d) return;
+
+  const wk = isWknd(year,month,day);
+  const dowNames = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+  const dowIdx = dow(year,month,day);
+
+  document.getElementById('m-title').textContent = `${day} de ${MONTHS_ES[month-1]} — ${dowNames[dowIdx]}`;
+  document.getElementById('m-sub').textContent = d.note || '';
+
+  /* Exámenes */
+  let exHtml = '';
+  if(d.exams && d.exams.length){
+    d.exams.forEach(ex=>{
+      const a = ASIGNATURAS[ex.subject]||{color:'#888',label:ex.subject};
+      const extra = ex.proposed ? 'proposed' : '';
+      exHtml += `<span class="exam-pill ${extra}" style="background:${a.color}22;color:${a.color};${ex.proposed?`border:1px dashed ${a.color}`:''}">`
+              + `${ex.proposed?'📅':'📝'} ${ex.label}</span>`;
+    });
+  }
+  document.getElementById('m-exams').innerHTML = exHtml;
+
+  /* Bloques */
+  let bHtml = '';
+  (d.blocks||[]).forEach(b=>{
+    const a = ASIGNATURAS[b.subject]||{color:'#888',label:b.subject};
+    bHtml += `<div class="tblock">
+      <div class="ttime">${b.time}</div>
+      <div class="tcontent">
+        <div><span class="stag ${colClass(b.subject)}">${a.label}</span></div>
+        <div class="ttitle">${b.label}</div>
+        ${b.detail?`<div class="tdetail">${b.detail}</div>`:''}
+      </div>
+    </div>`;
+  });
+
+  /* Gym notice */
+  if(d.gym) bHtml += `<div style="margin-top:0.5rem;font-size:0.75rem;color:var(--muted)">🏋️ Gym abierto hoy (L–V)</div>`;
+  else if(wk) bHtml += `<div style="margin-top:0.5rem;font-size:0.75rem;color:var(--muted)">🚫 Gym cerrado (fin de semana)</div>`;
+
+  document.getElementById('m-blocks').innerHTML = bHtml;
+
+  /* Tip */
+  document.getElementById('m-tip').innerHTML = d.tip ? `<div class="tip-box">${d.tip}</div>` : '';
+
+  document.getElementById('overlay').classList.add('open');
+}
+
+function closeModal(){
+  document.getElementById('overlay').classList.remove('open');
+}
+
+document.getElementById('overlay').addEventListener('click', function(e){
+  if(e.target === this) closeModal();
+});
+
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+
+</script>
+</body>
+</html>
